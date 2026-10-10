@@ -1,9 +1,13 @@
+lien
+
 # Prédire le pays d'une ville dans le réseau aérien mondial (GNN)
 
 Projet du module **BIML-GNN** (M2 IA, Université Claude Bernard Lyon 1).
 Trinôme : **BENBOUTA Walid** (p2513426), **BOUMAZA Choayb** (p2513241), **BENHAMAID Mohamed Amine** (p2512882).
 
 > **Projet réalisé sur Kaggle.** Tout le travail a été fait dans un notebook Kaggle, avec un GPU NVIDIA T4 et le graphe chargé comme dataset Kaggle. Le notebook de ce dépôt est l'export de celui-ci, avec les sorties de notre dernière exécution. La section 7 explique comment le relancer sur Kaggle ou sur une autre machine.
+
+**Notebook Kaggle :** [https://www.kaggle.com/code/benboutawalid/notebook9ef703683a](https://www.kaggle.com/code/benboutawalid/notebook9ef703683a)
 
 ## 1. Le sujet en bref
 
@@ -20,11 +24,11 @@ On est dans le cadre vu en cours (slides 14 et 35) : **transductif et semi-super
 
 **Résultat final :**
 
-| Modèle | F1-macro | Accuracy |
-|---|---|---|
-| **GAT pondéré sur Node2Vec** (notre modèle, exécution V2) | **0,851 ± 0,021** | 0,890 |
-| Même modèle, exécution V1 | 0,859 | 0,892 |
-| Label Propagation (meilleure baseline) | 0,831 ± 0,015 | 0,898 |
+| Modèle                                                             | F1-macro                 | Accuracy |
+| ------------------------------------------------------------------- | ------------------------ | -------- |
+| **GAT pondéré sur Node2Vec** (notre modèle, exécution V2) | **0,851 ± 0,021** | 0,890    |
+| Même modèle, exécution V1                                        | 0,859                    | 0,892    |
+| Label Propagation (meilleure baseline)                              | 0,831 ± 0,015           | 0,898    |
 
 Notre modèle est le seul qui bat la Label Propagation sur les 5 découpages (plis) de test, et ce dans nos deux exécutions complètes.
 
@@ -32,23 +36,23 @@ Notre modèle est le seul qui bat la Label Propagation sur les 5 découpages (pl
 
 ## 2. Contenu du dépôt
 
-| Fichier | Rôle |
-|---|---|
+| Fichier                                     | Rôle                                                                             |
+| ------------------------------------------- | --------------------------------------------------------------------------------- |
 | `gnn_prediction_pays_reseau_aerien.ipynb` | Tout le code, avec les sorties de notre dernière exécution (V2, 8 octobre 2026) |
-| `README.md` | Ce fichier |
+| `README.md`                               | Ce fichier                                                                        |
 
 Le notebook se lit dans l'ordre :
 
-| Section | Ce que l'on y fait |
-|---|---|
-| 0 | Installation des bibliothèques, imports, graine, cellule de reprise (facultative) |
-| 1 | Exploration du graphe : degrés, composantes, carte, pays |
-| 2 | Nettoyage des pays, classe `OTHER`, calcul des features |
-| 3 | Protocole : découpage en 5 plis, validation, métriques |
-| 4 | Baselines : classe majoritaire, MLP, k-NN, Label Propagation, Node2Vec |
-| 5 | Premiers essais de GNN (phase de recherche ; ses chiffres ne sont pas comparables entre eux) |
-| 6 | **Comparaison finale** : tous les modèles, tous les scénarios, mêmes réglages |
-| 7 | **Améliorations** : arêtes géographiques, grille plus large, pondération des classes |
+| Section | Ce que l'on y fait                                                                             |
+| ------- | ---------------------------------------------------------------------------------------------- |
+| 0       | Installation des bibliothèques, imports, graine, cellule de reprise (facultative)             |
+| 1       | Exploration du graphe : degrés, composantes, carte, pays                                      |
+| 2       | Nettoyage des pays, classe`OTHER`, calcul des features                                       |
+| 3       | Protocole : découpage en 5 plis, validation, métriques                                       |
+| 4       | Baselines : classe majoritaire, MLP, k-NN, Label Propagation, Node2Vec                         |
+| 5       | Premiers essais de GNN (phase de recherche ; ses chiffres ne sont pas comparables entre eux)   |
+| 6       | **Comparaison finale** : tous les modèles, tous les scénarios, mêmes réglages        |
+| 7       | **Améliorations** : arêtes géographiques, grille plus large, pondération des classes |
 
 Les résultats à retenir sont ceux des **sections 4, 6 et 7**.
 
@@ -56,13 +60,13 @@ Les résultats à retenir sont ceux des **sections 4, 6 et 7**.
 
 ## 3. Les difficultés du problème, et ce qu'on a décidé
 
-| Ce qu'on a observé | Ce qu'on a décidé |
-|---|---|
-| Les pays sont très déséquilibrés : les USA ont 650 villes, et 58 pays sur 99 en ont moins de 20. | On juge les modèles avec le **F1-macro** : chaque pays compte autant. L'accuracy compte chaque ville, donc elle favorise les gros pays : un modèle qui répond toujours « USA » a 19 % d'accuracy mais 0,3 % de F1-macro. |
-| 62 pays n'ont qu'une seule ville. | Les pays de moins de 5 villes sont regroupés dans une classe `OTHER`, ce qui donne **100 classes**. Il faut au moins 5 villes par pays pour en avoir une dans chacun des 5 plis. |
-| La latitude et la longitude donnent presque la réponse : la ville la plus proche est presque toujours du même pays. | On fait deux familles d'expériences : **A** (avec les coordonnées) et **B** (sans les coordonnées, pour voir ce que le graphe apporte seul). |
-| La population vaut 10 000 pour la moitié des villes (valeur par défaut). | On ne l'utilise pas. |
-| 170 villes n'ont **aucun** voisin de leur pays : tous leurs vols partent à l'étranger. | On les surveille dans les diagnostics. Ce sont elles qui piègent les modèles qui « copient » leurs voisins. |
+| Ce qu'on a observé                                                                                                   | Ce qu'on a décidé                                                                                                                                                                                                                |
+| --------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Les pays sont très déséquilibrés : les USA ont 650 villes, et 58 pays sur 99 en ont moins de 20.                  | On juge les modèles avec le**F1-macro** : chaque pays compte autant. L'accuracy compte chaque ville, donc elle favorise les gros pays : un modèle qui répond toujours « USA » a 19 % d'accuracy mais 0,3 % de F1-macro. |
+| 62 pays n'ont qu'une seule ville.                                                                                     | Les pays de moins de 5 villes sont regroupés dans une classe`OTHER`, ce qui donne **100 classes**. Il faut au moins 5 villes par pays pour en avoir une dans chacun des 5 plis.                                           |
+| La latitude et la longitude donnent presque la réponse : la ville la plus proche est presque toujours du même pays. | On fait deux familles d'expériences :**A** (avec les coordonnées) et **B** (sans les coordonnées, pour voir ce que le graphe apporte seul).                                                                         |
+| La population vaut 10 000 pour la moitié des villes (valeur par défaut).                                            | On ne l'utilise pas.                                                                                                                                                                                                               |
+| 170 villes n'ont**aucun** voisin de leur pays : tous leurs vols partent à l'étranger.                         | On les surveille dans les diagnostics. Ce sont elles qui piègent les modèles qui « copient » leurs voisins.                                                                                                                    |
 
 ---
 
@@ -72,36 +76,36 @@ Les résultats à retenir sont ceux des **sections 4, 6 et 7**.
 
 Aucune feature n'utilise les pays. On peut donc les calculer sur tout le graphe sans tricher.
 
-| Feature | Taille | Ce que c'est | Pourquoi |
-|---|---|---|---|
-| Coordonnées | 3 | Latitude et longitude transformées en un point sur une sphère (x, y, z) | Pas de saut entre −180° et +180° |
-| Structure | 4 | log(degré), log(PageRank), clustering, closeness | Décrire le **rôle** de la ville (gros hub ou petit aéroport régional) |
-| Distances | 3 | Longueur moyenne et minimale des vols de la ville, part des vols de moins de 500 km | Savoir si les voisins sont proches, donc s'ils sont probablement du même pays. Les GNN du cours n'utilisent pas d'attributs sur les arêtes, donc on met cette information sur les nœuds. |
-| Node2Vec | 128 | Un vecteur par ville, appris par marches aléatoires sur le graphe, **sans les pays** | Donner une « position dans le graphe » à chaque ville (méthode citée slide 31) |
-| VGAE | 128 | Un vecteur par ville, appris par l'auto-encodeur du cours (slides 24 à 27) | Comparer Node2Vec à une méthode vue en cours |
-| Identité | — | Une ligne apprise par ville (`nn.Embedding`), ce qui revient à X = matrice identité | Tester si un GNN réussit quand chaque ville est reconnaissable |
+| Feature      | Taille | Ce que c'est                                                                               | Pourquoi                                                                                                                                                                                    |
+| ------------ | ------ | ------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Coordonnées | 3      | Latitude et longitude transformées en un point sur une sphère (x, y, z)                  | Pas de saut entre −180° et +180°                                                                                                                                                         |
+| Structure    | 4      | log(degré), log(PageRank), clustering, closeness                                          | Décrire le**rôle** de la ville (gros hub ou petit aéroport régional)                                                                                                              |
+| Distances    | 3      | Longueur moyenne et minimale des vols de la ville, part des vols de moins de 500 km        | Savoir si les voisins sont proches, donc s'ils sont probablement du même pays. Les GNN du cours n'utilisent pas d'attributs sur les arêtes, donc on met cette information sur les nœuds. |
+| Node2Vec     | 128    | Un vecteur par ville, appris par marches aléatoires sur le graphe,**sans les pays** | Donner une « position dans le graphe » à chaque ville (méthode citée slide 31)                                                                                                         |
+| VGAE         | 128    | Un vecteur par ville, appris par l'auto-encodeur du cours (slides 24 à 27)                | Comparer Node2Vec à une méthode vue en cours                                                                                                                                              |
+| Identité    | —     | Une ligne apprise par ville (`nn.Embedding`), ce qui revient à X = matrice identité    | Tester si un GNN réussit quand chaque ville est reconnaissable                                                                                                                             |
 
 ### 4.2 Les scénarios
 
 Le graphe est toujours celui des vols ; seule l'entrée X change. Chaque scénario répond à une question.
 
-| Scénario | Entrée | Question |
-|---|---|---|
-| A | coordonnées + structure (7) | Le graphe aide-t-il quand on a déjà les coordonnées ? |
-| A+dist | A + distances (10) | La longueur des vols aide-t-elle ? |
-| A+dist+n2v | A+dist + Node2Vec (138) | Que donne le modèle avec toutes les informations ? |
-| B | structure seule (4) | Le graphe suffit-il sans la position ? |
-| B+id | identité apprise | Un GNN fait-il aussi bien que la Label Propagation si chaque ville est reconnaissable ? |
-| B+n2v | Node2Vec seul (128) | Le GNN améliore-t-il un bon embedding ? |
-| B+vgae | VGAE seul (128) | Le VGAE du cours vaut-il Node2Vec ? |
+| Scénario  | Entrée                      | Question                                                                                |
+| ---------- | ---------------------------- | --------------------------------------------------------------------------------------- |
+| A          | coordonnées + structure (7) | Le graphe aide-t-il quand on a déjà les coordonnées ?                                |
+| A+dist     | A + distances (10)           | La longueur des vols aide-t-elle ?                                                      |
+| A+dist+n2v | A+dist + Node2Vec (138)      | Que donne le modèle avec toutes les informations ?                                     |
+| B          | structure seule (4)          | Le graphe suffit-il sans la position ?                                                  |
+| B+id       | identité apprise            | Un GNN fait-il aussi bien que la Label Propagation si chaque ville est reconnaissable ? |
+| B+n2v      | Node2Vec seul (128)          | Le GNN améliore-t-il un bon embedding ?                                                |
+| B+vgae     | VGAE seul (128)              | Le VGAE du cours vaut-il Node2Vec ?                                                     |
 
 **Pourquoi un GNN échoue en B (lien avec la slide 11).** Pour un GNN, l'ordre des nœuds n'a pas de sens ; c'est l'équivariance par permutation. Deux villes qui ont le même voisinage et les mêmes features reçoivent donc forcément la même prédiction, même si elles sont dans deux pays différents. La Label Propagation et Node2Vec n'ont pas ce problème, car ils donnent à chaque ville quelque chose qui lui est propre (son label propagé, ou un vecteur appris rien que pour elle). La preuve :
 
 | Même GCN, entrée différente | F1-macro |
-|---|---|
-| B (structure seule) | 0,359 |
-| B+id (identité apprise) | 0,803 |
-| B+n2v (Node2Vec) | 0,832 |
+| ------------------------------ | -------- |
+| B (structure seule)            | 0,359    |
+| B+id (identité apprise)       | 0,803    |
+| B+n2v (Node2Vec)               | 0,832    |
 
 ---
 
@@ -128,19 +132,19 @@ X (features ou identité)
 
 Seule la **couche de graphe** change d'un modèle à l'autre.
 
-| Modèle | Ce que fait la couche | Slides | Comment la ville elle-même est prise en compte |
-|---|---|---|---|
-| **GCN** | moyenne pondérée de la ville et de ses voisins, poids fixés par les degrés : 1/√(dᵢ·dⱼ) | 12, 13, 15 | Elle n'est qu'**un voisin parmi d'autres** |
-| **GraphSAGE** | W₁·(la ville) + W₂·(moyenne des voisins) | 35 | Elle a **sa propre matrice** W₁ |
-| **GAT (GATv2)** | somme des voisins, chacun avec un poids **appris** par l'attention (softmax) ; 8 têtes concaténées, activation ELU | 19 à 21, code du cours | Elle reçoit elle aussi un poids appris |
-| **SIGN** | un MLP sur [X, ŜX, Ŝ²X, Ŝ³X], où la propagation est calculée une fois à l'avance | idée tirée de la slide 13 (associativité) | Le bloc X reste intact |
-| **MLP** | même tête, sans aucune arête | 33 | Modèle de contrôle |
+| Modèle               | Ce que fait la couche                                                                                                      | Slides                                       | Comment la ville elle-même est prise en compte  |
+| --------------------- | -------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------- | ------------------------------------------------ |
+| **GCN**         | moyenne pondérée de la ville et de ses voisins, poids fixés par les degrés : 1/√(dᵢ·dⱼ)                            | 12, 13, 15                                   | Elle n'est qu'**un voisin parmi d'autres** |
+| **GraphSAGE**   | W₁·(la ville) + W₂·(moyenne des voisins)                                                                               | 35                                           | Elle a**sa propre matrice** W₁            |
+| **GAT (GATv2)** | somme des voisins, chacun avec un poids**appris** par l'attention (softmax) ; 8 têtes concaténées, activation ELU | 19 à 21, code du cours                      | Elle reçoit elle aussi un poids appris          |
+| **SIGN**        | un MLP sur [X, ŜX, Ŝ²X, Ŝ³X], où la propagation est calculée une fois à l'avance                                   | idée tirée de la slide 13 (associativité) | Le bloc X reste intact                           |
+| **MLP**         | même tête, sans aucune arête                                                                                            | 33                                           | Modèle de contrôle                             |
 
 **Pourquoi c'est important.** Sur les 170 villes dont tous les vols partent à l'étranger, plus un modèle « protège » l'information de la ville elle-même, mieux il s'en sort :
 
-| Modèle | MLP | SIGN | GraphSAGE | GAT | GCN | LP |
-|---|---|---|---|---|---|---|
-| Accuracy sur ces 170 villes (scénario A) | 0,618 | 0,500 | 0,347 | 0,153 | 0,071 | 0,024 |
+| Modèle                                   | MLP   | SIGN  | GraphSAGE | GAT   | GCN   | LP    |
+| ----------------------------------------- | ----- | ----- | --------- | ----- | ----- | ----- |
+| Accuracy sur ces 170 villes (scénario A) | 0,618 | 0,500 | 0,347     | 0,153 | 0,071 | 0,024 |
 
 Le GAT est le meilleur GNN dans tous les scénarios. Son attention a appris à faire **moins confiance aux voisins lointains** : pour 81 % des villes, plus le vol est long, plus le poids donné au voisin est faible.
 
@@ -182,19 +186,18 @@ Le notebook a été écrit et exécuté **sur Kaggle**. C'est donc la façon la 
   ```python
   RAW_PATH = Path("/kaggle/input/datasets/benboutawalid/graphe/airportsAndCoordAndPop.graphml")
   ```
-
 - C'est le **seul chemin à adapter**. Tous les autres dossiers (`data/processed/`, `results/`, `results/figures/`) sont relatifs et créés automatiquement.
 
 ### 7.2 Environnement utilisé pour nos résultats
 
-| Élément | Version (exécution V2, Kaggle) |
-|---|---|
-| Plateforme | Kaggle Notebooks, **GPU NVIDIA T4** |
-| Python | 3.13 (d'après les métadonnées du notebook) |
-| PyTorch | 2.11 (CUDA 12.8) |
-| PyTorch Geometric | 2.8.0.post1 |
-| pyg_lib | 0.9.0 (sert aux marches aléatoires de Node2Vec) |
-| Autres | numpy, pandas, scikit-learn, scipy, networkx, matplotlib, seaborn (déjà installés sur Kaggle) |
+| Élément         | Version (exécution V2, Kaggle)                                                                  |
+| ----------------- | ------------------------------------------------------------------------------------------------ |
+| Plateforme        | Kaggle Notebooks,**GPU NVIDIA T4**                                                         |
+| Python            | 3.13 (d'après les métadonnées du notebook)                                                    |
+| PyTorch           | 2.11 (CUDA 12.8)                                                                                 |
+| PyTorch Geometric | 2.8.0.post1                                                                                      |
+| pyg_lib           | 0.9.0 (sert aux marches aléatoires de Node2Vec)                                                 |
+| Autres            | numpy, pandas, scikit-learn, scipy, networkx, matplotlib, seaborn (déjà installés sur Kaggle) |
 
 ### 7.3 Guide d'exécution sur Kaggle (notre environnement)
 
@@ -222,11 +225,11 @@ Le notebook a été écrit et exécuté **sur Kaggle**. C'est donc la façon la 
 
 Le code ne dépend de Kaggle qu'à trois endroits :
 
-| Endroit | Sur Kaggle | Sur une autre machine |
-|---|---|---|
-| `RAW_PATH` (cellule des imports) | `/kaggle/input/...` | **À modifier** : chemin local du `.graphml` |
-| Cellule « REPRISE » et tableau récapitulatif 6.7 | Cherchent d'anciens résultats dans `/kaggle/input` | Ne font rien (le dossier n'existe pas) ; le notebook utilise `results/` normalement |
-| Choix du GPU | GPU T4 | Automatique : `DEVICE = cuda` si une carte NVIDIA est disponible, sinon `cpu` |
+| Endroit                                             | Sur Kaggle                                           | Sur une autre machine                                                                |
+| --------------------------------------------------- | ---------------------------------------------------- | ------------------------------------------------------------------------------------ |
+| `RAW_PATH` (cellule des imports)                  | `/kaggle/input/...`                                | **À modifier** : chemin local du `.graphml`                                 |
+| Cellule « REPRISE » et tableau récapitulatif 6.7 | Cherchent d'anciens résultats dans`/kaggle/input` | Ne font rien (le dossier n'existe pas) ; le notebook utilise`results/` normalement |
+| Choix du GPU                                        | GPU T4                                               | Automatique :`DEVICE = cuda` si une carte NVIDIA est disponible, sinon `cpu`     |
 
 **Étapes :**
 
@@ -238,21 +241,18 @@ Le code ne dépend de Kaggle qu'à trois endroits :
    mkdir -p data/raw
    # copier airportsAndCoordAndPop.graphml dans data/raw/
    ```
-
 2. **Créer un environnement Python** (Python 3.10 ou plus récent ; nous avons utilisé 3.13 sur Kaggle).
 
    ```bash
    python -m venv .venv
    source .venv/bin/activate          # Windows : .venv\Scripts\activate
    ```
-
 3. **Installer PyTorch.** La commande dépend de la machine (GPU NVIDIA ou non). Le plus sûr est de la copier depuis le sélecteur de pytorch.org (*Get Started*). Par exemple :
 
    ```bash
    pip install torch --index-url https://download.pytorch.org/whl/cpu      # sans GPU
    pip install torch --index-url https://download.pytorch.org/whl/cu128    # GPU NVIDIA, CUDA 12.8 (comme sur Kaggle)
    ```
-
 4. **Installer les autres bibliothèques.**
 
    ```bash
@@ -260,13 +260,11 @@ Le code ne dépend de Kaggle qu'à trois endroits :
    ```
 
    `pyg_lib` est installé par la 2ᵉ cellule du notebook, qui choisit automatiquement la bonne version. Si aucune version de `pyg_lib` n'existe pour votre système, installez `torch_cluster` depuis la même page (`https://data.pyg.org/whl/torch-<version>+<cpu ou cuXXX>.html`) : Node2Vec peut utiliser l'un ou l'autre pour ses marches aléatoires.
-
 5. **Modifier `RAW_PATH`** dans la cellule des imports :
 
    ```python
    RAW_PATH = Path("data/raw/airportsAndCoordAndPop.graphml")
    ```
-
 6. **Lancer Jupyter depuis le dossier du dépôt**, pour que `data/` et `results/` soient créés au bon endroit :
 
    ```bash
@@ -283,11 +281,11 @@ Le code ne dépend de Kaggle qu'à trois endroits :
 
 **Durée totale : environ 4 h** sur GPU T4 (Kaggle).
 
-| Partie | Durée |
-|---|---|
-| Baselines + Node2Vec | environ 17 min |
-| Section 6 | environ 83 min |
-| Section 7 | environ 115 min |
+| Partie               | Durée          |
+| -------------------- | --------------- |
+| Baselines + Node2Vec | environ 17 min  |
+| Section 6            | environ 83 min  |
+| Section 7            | environ 115 min |
 
 **Fichiers créés :**
 
@@ -313,17 +311,17 @@ Les résultats sont sauvegardés après chaque entraînement, donc on ne perd pa
 
 ## 8. Résultats principaux (V2, F1-macro ± écart-type sur 5 plis)
 
-| Méthode | A | A+dist+n2v | B | B+n2v |
-|---|---|---|---|---|
-| k-NN sur coordonnées | 0,773 ± 0,018 | — | — | — |
-| Node2Vec + k-NN | 0,781 ± 0,024 | — | 0,781 ± 0,024 | — |
-| Label Propagation | **0,831 ± 0,015** | — | **0,831 ± 0,015** | — |
-| MLP | 0,629 ± 0,049 | 0,814 ± 0,028 | 0,158 ± 0,027 | 0,787 ± 0,030 |
-| SIGN | 0,711 ± 0,028 | 0,833 ± 0,007 | 0,381 ± 0,030 | 0,815 ± 0,029 |
-| GCN | 0,640 ± 0,061 | 0,827 ± 0,034 | 0,359 ± 0,043 | 0,832 ± 0,020 |
-| GraphSAGE | 0,668 ± 0,045 | 0,840 ± 0,015 | 0,483 ± 0,051 | 0,815 ± 0,019 |
-| GAT | 0,768 ± 0,018 | 0,851 ± 0,024 | 0,729 ± 0,030 | 0,845 ± 0,024 |
-| **GAT pondéré** | — | **0,859 ± 0,034** | — | **0,851 ± 0,021** |
+| Méthode                | A                        | A+dist+n2v               | B                        | B+n2v                    |
+| ----------------------- | ------------------------ | ------------------------ | ------------------------ | ------------------------ |
+| k-NN sur coordonnées   | 0,773 ± 0,018           | —                       | —                       | —                       |
+| Node2Vec + k-NN         | 0,781 ± 0,024           | —                       | 0,781 ± 0,024           | —                       |
+| Label Propagation       | **0,831 ± 0,015** | —                       | **0,831 ± 0,015** | —                       |
+| MLP                     | 0,629 ± 0,049           | 0,814 ± 0,028           | 0,158 ± 0,027           | 0,787 ± 0,030           |
+| SIGN                    | 0,711 ± 0,028           | 0,833 ± 0,007           | 0,381 ± 0,030           | 0,815 ± 0,029           |
+| GCN                     | 0,640 ± 0,061           | 0,827 ± 0,034           | 0,359 ± 0,043           | 0,832 ± 0,020           |
+| GraphSAGE               | 0,668 ± 0,045           | 0,840 ± 0,015           | 0,483 ± 0,051           | 0,815 ± 0,019           |
+| GAT                     | 0,768 ± 0,018           | 0,851 ± 0,024           | 0,729 ± 0,030           | 0,845 ± 0,024           |
+| **GAT pondéré** | —                       | **0,859 ± 0,034** | —                       | **0,851 ± 0,021** |
 
 Le tableau complet (7 scénarios, accuracy, étude d'ablation) est dans le rapport.
 
